@@ -4,11 +4,15 @@ import Ecomcontext from '../contexts/context';
 import MapPage from '../Maps/page';
 import { useRef } from 'react';
 import Image from 'next/image';
-
+  
 const Page = () => {
   const context = useContext(Ecomcontext);
   const {submissionStatus,toggleDisplay,display,deliverydetails} = context
-  
+  const [address,setaddress] = useState('')
+  useEffect(()=>{
+    setaddress(localStorage.getItem('address'))
+
+  },[])
 
   const { cart } = context;
   console.log(cart);
@@ -30,7 +34,7 @@ const Page = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Section */}
         {
-          submissionStatus ==='success'?<div className='flex'> <div className=' relative top-32 shadow hover:shadow-2xl w-64 h-40 text-sm px-4 py-10' >   {localStorage.getItem('address')}  </div> 
+          submissionStatus ==='success'?<div className='flex'> <div className=' relative top-32 shadow hover:shadow-2xl w-64 h-40 text-sm px-4 py-10' >   {address}  </div> 
                     <section>
           <div>
             <div className="font-bold text-xl mb-4">Add a delivery address</div>

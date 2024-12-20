@@ -11,11 +11,14 @@ const RestaurantDashboard = () => {
     localStorage.removeItem('id');
     router.push('/');
   };
-
+useEffect(()=>{
   let restaurantId = localStorage.getItem('id');
   if (!restaurantId) {
     router.push('/Login-Restaurants');
   }
+
+
+})
 
   const tabs = [
     { name: 'Orders', id: 'orders' },

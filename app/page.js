@@ -13,12 +13,13 @@ const Page = () => {
   const context = useContext(Ecomcontext)
   const [value,setvalue] = useState()
   const {cart,addToCart,showOrderModal,handleOrderItem,setShowOrderModal,selectedItem,showcart} = context
-  const uniqueid = localStorage.getItem('token')
 
   const router = useRouter();
   const handleChange = (e) => setQuery(e.target.value);
 
   useEffect(() => {
+    const uniqueid = localStorage.getItem('token')
+
     const fetchResults = async () => {
       if (!query) return;
 
