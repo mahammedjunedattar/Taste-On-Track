@@ -2,20 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaShoppingCart } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import Navbar from './components/Navbar/page';
 import { useContext } from 'react';
 import Ecomcontext from './contexts/context';
 
 const Page = () => {
-  const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const context = useContext(Ecomcontext)
   const [value,setvalue] = useState()
-  const {cart,addToCart,showOrderModal,handleOrderItem,setShowOrderModal,selectedItem,showcart} = context
+  const {cart,addToCart,showOrderModal,handleOrderItem,setShowOrderModal,selectedItem,showcart,query,handleChange} = context
 
   const router = useRouter();
-  const handleChange = (e) => setQuery(e.target.value);
 
   useEffect(() => {
     const uniqueid = localStorage.getItem('token')
@@ -53,7 +50,6 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar quereirs={query}/>
 
       {/* Search Section */}
       <div className="flex flex-col items-center justify-center my-16">

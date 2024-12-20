@@ -4,10 +4,14 @@ import './globals.css';
 import Ecomcontext from './contexts/context';
 import { useState,useEffect } from 'react';
 import Footer from './components/Footer/footer';
+import Navbar from './components/Navbar/page';
+
 
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }) {
+    const [query, setQuery] = useState('');
+  
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [cart, setCart] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -17,6 +21,8 @@ export default function RootLayout({ children }) {
   const toggleDisplay = () => {
     setDisplay(!display);
   };
+  const handleChange = (e) => setQuery(e.target.value);
+
 
   const [deliverydetails, setdeliverydetails] = useState({
     Address: "",
@@ -145,8 +151,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Ecomcontext.Provider value={{ cart, addToCart, showOrderModal, handleOrderItem, setShowOrderModal, selectedItem,showcart ,handleSubmit,onchange,submissionStatus,setdeliverydetails,deliverydetails,toggleDisplay,display,removeFromCart}}>
+        <Ecomcontext.Provider value={{ cart, addToCart, showOrderModal, handleOrderItem, setShowOrderModal, selectedItem,showcart ,handleSubmit,onchange,submissionStatus,setdeliverydetails,deliverydetails,toggleDisplay,display,removeFromCart,query,handleChange}}>
+                <Navbar quereirs={query}/>
+          
           {children}
+
           <Footer/>
         </Ecomcontext.Provider>
       </body>
