@@ -14,7 +14,7 @@ const Page = () => {
 
   },[])
 
-  const { cart } = context;
+  const { cart,onplaceorder } = context;
   console.log(cart);
   const total = cart.reduce((sum,item)=>{return sum+=(parseInt(item.price) ||0)},0)
 
@@ -162,8 +162,8 @@ const Page = () => {
       ? 'bg-blue-600 text-white hover:bg-blue-700'
       : 'bg-gray-400 text-gray-700 cursor-not-allowed'
   }`}
-  disabled={submissionStatus !== 'success'}
->
+
+onClick={onplaceorder}>
   Place Order
 </button>
         </section>

@@ -7,10 +7,12 @@ import Footer from './components/Footer/footer';
 import Navbar from './components/Navbar/page';
 
 
+
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children }) {
     const [query, setQuery] = useState('');
+    const [form, setform] = useState('');
   
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [cart, setCart] = useState([]);
@@ -18,13 +20,60 @@ export default function RootLayout({ children }) {
   const [showcart,setshowcart] = useState(false)
   const [submissionStatus, setSubmissionStatus] = useState(null); // Submission status
   const [display, setDisplay] = useState(false);
-  const toggleDisplay = () => {
+    const [markerPosition, setMarkerPosition] = useState([20.5937, 78.9629]); // Default to India
+  
+    const [newaddress, setnewaddress] = useState("");
+      const [userLocation, setUserLocation] = useState(null);
+    
+      const [location, setlocation] = useState("");
+
+
+    const [order ,setorder] =  useState([])
+    const onplaceorder = async (e) => {
+      e.preventDefault(); // Prevent default form submission behavior
+      
+      try {
+        // Prepare the payload as an array
+        console.log(deliverydetails)
+        let carts = cart[1].items
+        const payload = [deliverydetails, carts];
+    
+        // Send POST request to the server
+        const response = await fetch("/apis/order", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          credentials: "include", // Include cookies in the request
+        });
+    
+        // Check if the response is successful
+        if (!response.ok) {
+          throw new Error(`Failed to place order: ${response.statusText}`);
+        }
+    
+        // Parse the server response
+        const data = await response.json();
+    
+        // Update submission status or perform further actions
+        setSubmissionStatus("success");
+    
+        // Optionally clear cart or redirect
+      } catch (error) {
+        console.error("Error placing order:", error);
+        setSubmissionStatus("error"); // Update UI to show error status
+      }
+    };
+          const toggleDisplay = () => {
     setDisplay(!display);
   };
   const handleChange = (e) => setQuery(e.target.value);
+  const onsearch = (e) => setform(e.target.value);
 
 
   const [deliverydetails, setdeliverydetails] = useState({
+    Name : "",
     Address: "",
     flat: "",
     area: "",
@@ -32,8 +81,40 @@ export default function RootLayout({ children }) {
   });
   const onchange = (e) => {
     const { name, value } = e.target;
+    console.log(e.target.value)
     setdeliverydetails((prev) => ({ ...prev, [name]: value }));
   };
+  console.log(deliverydetails)
+  const onaddress = (e) => {
+    const { name, value } = e.target;
+    setlocation('')
+    setform((prev) => ({ ...prev, [name]: value }));
+  };
+const searchrestuarants = ()=>{
+  setlocation(form)
+  setDisplay(false)
+}
+const Detectlocation = (locations)=>{
+  setlocation(locations)
+}
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+          setMarkerPosition([latitude, longitude]);
+        },
+        (error) => {
+          setErrorMessage("Unable to retrieve location. Please enable GPS.");
+          console.error(error.message);
+        }
+      );
+    } else {
+      setErrorMessage("Geolocation is not supported by your browser.");
+    }
+  }, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,7 +173,6 @@ export default function RootLayout({ children }) {
       updatedCart = [...cart, { uniqueid, items: [item] }];
     }
   
-    console.log(updatedCart);
     saveCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart)); // Save to localStorage
     setShowOrderModal(false);
@@ -151,10 +231,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Ecomcontext.Provider value={{ cart, addToCart, showOrderModal, handleOrderItem, setShowOrderModal, selectedItem,showcart ,handleSubmit,onchange,submissionStatus,setdeliverydetails,deliverydetails,toggleDisplay,display,removeFromCart,query,handleChange}}>
+
+        <Ecomcontext.Provider value={{ onplaceorder, cart, addToCart, showOrderModal, handleOrderItem, setShowOrderModal, selectedItem,showcart ,handleSubmit,onchange,submissionStatus,setdeliverydetails,deliverydetails,toggleDisplay,display,removeFromCart,query,handleChange,onsearch,form,searchrestuarants,onaddress,location,Detectlocation,setMarkerPosition,markerPosition,userLocation,setUserLocation}}>
                 <Navbar quereirs={query}/>
+                {children}
+
           
-          {children}
 
           <Footer/>
         </Ecomcontext.Provider>

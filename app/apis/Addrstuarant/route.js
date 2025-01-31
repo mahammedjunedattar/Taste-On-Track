@@ -32,52 +32,41 @@ async function connectToDatabase() {
 export async function POST(request) {
   try {
     const data = await request.json();
-    console.log(data);
 
-    // Check if required fields for restaurant are provided
-    const requiredFields = ['name', 'address', 'contact', 'opening_hours'];
-    const missingFields = requiredFields.filter(field => !data[field]);
-
-    if (missingFields.length > 0) {
-      return NextResponse.json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
-      }, { status: 400 });
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data format. Expected an array of restaurant objects.');
     }
 
     const client = await connectToDatabase();
     const db = client.db('Add-Restaurantsss');
     const collection = db.collection('Restaurantsss');
 
-    // Insert new restaurant document using the full data structure
-    await collection.insertOne({
-      name: data.name,
-      address: {
-        street: data.address.street,
-        city: data.address.city,
-        state: data.address.state,
-        postal_code: data.address.postal_code,
-        country: data.address.country
-      },
-      contact: {
-        phone: data.contact.phone,
-        email: data.contact.email,
-        website: data.contact.website
-      },
-      opening_hours: data.opening_hours,
-      cuisines: data.cuisines,
-      photos: data.photos,
-      menu: data.menu,
-      delivery_options: data.delivery_options,
+    // Insert restaurants in bulk
+    const documents = data.map((restaurant) => ({
+      name: restaurant.name,
+      address: restaurant.address,
+      contact: restaurant.contact,
+      opening_hours: restaurant.opening_hours,
+      cuisines: restaurant.cuisines,
+      photos: restaurant.photos,
+      menu: restaurant.menu,
+      delivery_options: restaurant.delivery_options,
+    }));
 
-    });
+    await collection.insertMany(documents);
 
-    return NextResponse.json({ message: 'Restaurant inserted successfully', ok: true }, { status: 201 });
-
+    return NextResponse.json(
+      { message: 'Restaurants inserted successfully', ok: true },
+      { status: 201 }
+    );
   } catch (e) {
     console.error('Error in POST handler:', e);
-    return NextResponse.json({ 
-      error: 'Unable to insert restaurant data', 
-      details: e.message 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Unable to insert restaurant data',
+        details: e.message,
+      },
+      { status: 500 }
+    );
   }
 }

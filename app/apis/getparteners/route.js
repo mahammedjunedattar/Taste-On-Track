@@ -4,6 +4,7 @@ import { MongoClient } from 'mongodb';
 const uri = process.env.MONGODB_URI; // Ensure you have this environment variable set
 let cachedClient = null;
 
+// Function to connect to the database
 async function connectToDatabase() {
   if (!uri) {
     throw new Error('MONGODB_URI is not set');
@@ -20,28 +21,11 @@ async function connectToDatabase() {
 
   cachedClient = await client.connect();
 
-  // Create indexes if necessary
-  await createIndexes(client);
-
   return cachedClient;
 }
 
-// Function to create indexes
-async function createIndexes(client) {
-  const db = await client.db('Add-Restaurantsss'); // Replace with your actual database name
-  const collection = await db.collection('Restaurantsss');
-
-  // Create a unique index on the 'name' field
-  await collection.createIndex(
-    { name: 1 }, // Field to index
-    { unique: true, sparse: true } // Options: unique and sparse
-  );
-
-  console.log('Index created on the name field');
-}
-
+// Function to handle GET requests
 export async function GET(request) {
-  // Extract the query parameter
   const { searchParams } = request.nextUrl;
   const q = searchParams.get('q');
 
@@ -55,10 +39,8 @@ export async function GET(request) {
 
   try {
     const client = await connectToDatabase();
-    const db = client.db('Add-Restaurantsss'); // Replace with your actual database name
-    const collection = db.collection('Restaurantsss');
-    
-    // Count documents and log a sample document
+    const db = client.db('Delivery-parteners'); // Replace with your actual database name
+    const collection = db.collection('parteners'); // Replace with your actual collection name
 
     // Build the aggregation pipeline
     const pipeline = [
@@ -66,18 +48,27 @@ export async function GET(request) {
         $search: {
           index: 'default', // Ensure this index exists in Atlas
           text: {
-            query: q, // Convert query to lowercase
-            path: 'name' // Ensure this matches the actual field name
+            query: q, // The search query
+            path: ['name', 'area', 'id'] // Search across multiple fields
           }
         }
       },
-      { $limit: 10 }
+      { $limit: 10 }, // Limit the results to 10
+      {
+        $project: {
+            id: 1,
+          name: 1,
+          email: 1,
+          contact: 1,
+          score: { $meta: 'searchScore' } // Include the relevance score (optional)
+        }
+      }
     ];
-    
+
     // Run the aggregation pipeline
     const results = await collection.aggregate(pipeline).toArray();
 
-    // Return the results from the aggregation
+    // Return the results
     return NextResponse.json({ results }, { status: 200 });
   } catch (error) {
     console.error('Search Error:', error);

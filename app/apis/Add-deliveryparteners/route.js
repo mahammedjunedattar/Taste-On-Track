@@ -35,35 +35,37 @@ export async function POST(request) {
     console.log(data);
 
     // Check if required fields for restaurant are provided
-    const requiredFields = ['Address', 'flat', 'area', 'landmark'];
-    const missingFields = requiredFields.filter(field => !data[field]);
 
-    if (missingFields.length > 0) {
-      return NextResponse.json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
-      }, { status: 400 });
-    }
 
     const client = await connectToDatabase();
-    const db = client.db('deliver-details');
-    const collection = db.collection('delivery');
+    const db = client.db('Delivery-parteners');
+    const collection = db.collection('parteners');
 
     // Insert new restaurant document using the full data structure
-    await collection.insertOne({
-      Name : data.Name,
-      Address: data.Address,
-      flat : parseInt(data.flat),
-      area : data.area,
-      landmark : data.landmark
+    for (let i = 0; i < data.length; i++) {
+        await collection.insertOne({
+            id: data[i].id,
+            name : data[i].name,
+            contact: data[i].contact,
+            email: data[i].email,
+            status :data[i].status,
+            area : data[i].area,
+            ordersDelivered : data[i].ordersDelivered,
+            vehicle : data[i].vehicle,
+            licensePlate : data[i].licensePlate
+            
+      
+          });
+      
+        
+    }
 
-    });
-
-    return NextResponse.json({ message: 'Restaurant inserted successfully', ok: true }, { status: 201 });
+    return NextResponse.json({ message: 'partener inserted successfully', ok: true }, { status: 201 });
 
   } catch (e) {
     console.error('Error in POST handler:', e);
     return NextResponse.json({ 
-      error: 'Unable to insert restaurant data', 
+      error: 'Unable to insert partener data', 
       details: e.message 
     }, { status: 500 });
   }

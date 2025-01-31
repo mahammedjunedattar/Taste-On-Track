@@ -35,28 +35,27 @@ export async function POST(request) {
     console.log(data);
 
     // Check if required fields for restaurant are provided
-    const requiredFields = ['Address', 'flat', 'area', 'landmark'];
-    const missingFields = requiredFields.filter(field => !data[field]);
 
-    if (missingFields.length > 0) {
-      return NextResponse.json({ 
-        error: `Missing required fields: ${missingFields.join(', ')}` 
-      }, { status: 400 });
-    }
 
     const client = await connectToDatabase();
-    const db = client.db('deliver-details');
-    const collection = db.collection('delivery');
+    const db = client.db('Addproducts');
+    const collection = db.collection('Products');
 
     // Insert new restaurant document using the full data structure
-    await collection.insertOne({
-      Name : data.Name,
-      Address: data.Address,
-      flat : parseInt(data.flat),
-      area : data.area,
-      landmark : data.landmark
-
-    });
+    for (let i = 0; i < data.length; i++) {
+        await collection.insertOne({
+            title: data[i].title,
+            description : data[i].description,
+            image: data[i].image,
+            rating: data[i].rating,
+            slug :data[i].slug,
+            category : data[i].category
+            
+      
+          });
+      
+        
+    }
 
     return NextResponse.json({ message: 'Restaurant inserted successfully', ok: true }, { status: 201 });
 
